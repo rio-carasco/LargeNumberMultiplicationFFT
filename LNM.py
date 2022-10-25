@@ -1,27 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov 15 11:16:02 2021
-
-@author: riocarasco
-"""
 import numpy as np
 from scipy.fft import fft, ifft
 from random import randint
 
-def randomDigits(n):
+def randomDigits(n):                            # Generates random digits of specific and equal length (e.g between 10^9 = 1000000000 and (10^10 - 1) = 9999999999)
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return randint(range_start, range_end)
 
-def Pwr2(Number):
+def Pwr2(Number):                               # Checks if a number is a power of 2; if not, log2 will return a non-integer value
     if np.log2(Number).is_integer():
         return True
     else:
         return False
 
 
-def Info(A, B):
+def Info(A, B):                                 # Finds a value of L such that L+M-1 is a power of 2, precursor for acyclic -> cyclic/negacyclic convolution method
     M = len(B)
     L = 1
     while not Pwr2(L+M-1):
@@ -30,7 +23,7 @@ def Info(A, B):
     N = L + M - 1
     return M, L, N, OL
 
-def Num2Arr(Number):
+def Num2Arr(Number):                            # Converts a single number to a string and then separates the string into individual integer values placed in an array 
     a = []
     for i in str(Number):
         a.append(int(i))
@@ -38,29 +31,29 @@ def Num2Arr(Number):
     return a
     
 
-def Split(Arr, L):
-    if L == 1:
+def Split(Arr, L):                              # Iteratively slices an array of polynomial values into sub-arrays of specific length 
+    if L == 1:                                  # Takes in L from a prior instance of Info() as a testing metric (Galois group for cyclotomic extension: calculating a splitting field)
         return np.array_split(Arr, len(Arr))
     else:
-        R = len(Arr)%L
-        NoR = len(Arr) - R
-        NewArr = Arr[:NoR]
-        if len(NewArr) == L:
-            FinalArr = np.empty(2, object)
-            FinalArr[0] = NewArr
-            if R == 0:
+        R = len(Arr)%L                          # Length of array modulo L; tells us how "long" the array is relative to a pertinent value (relates to calculations in power 2, given the earlier role of L)
+        NoR = len(Arr) - R                      # Subtracts the excess length of the array, returning an "ideal" array length for splitting to power 2
+        NewArr = Arr[:NoR]                      # Selects the region of the array up to the length of NoR
+        if len(NewArr) == L:                    # Check to see if the length of the new array is equivalent to L; if so:
+            FinalArr = np.empty(2, object)      # np.empty returns a new array of a given shape without filling with zeros. Passing 2 to np.empty presumably initiates an empty array of size 2
+            FinalArr[0] = NewArr                # Stores the cut-down region of a passed array in the first entry of the new empty array 
+            if R == 0:                          # Check to see if there is a remainder left over (i.e is the length of Arr identified with 0 in modulus L)
                 pass
             else:
-                RArr = np.array(Arr[-R:])
+                RArr = np.array(Arr[-R:])       # If not, stores the cut-off section of the original array in the second entry of FinalArr
                 FinalArr[1] = RArr
-            return FinalArr
+            return FinalArr          
         NewArrSplit = np.array_split(NewArr, len(NewArr)/L)
         if R == 0:
             pass
         else:
             RArr = np.array(Arr[-R:])
         if R == 0:
-            R_Value = 0
+            R_Value = 0                          # This function splits an array into sub-arrays of equal power-of-two lengths
         else:
             R_Value = 1
         FinalArr = np.empty(len(NewArrSplit) + R_Value, object)
@@ -73,54 +66,38 @@ def Split(Arr, L):
         return FinalArr
 
 
-def Padding(Arr, N):
+def Padding(Arr, N):                              # A pad to ensure power-2 calculations for efficient FT
     return np.pad(Arr, (0, N-len(Arr)), 'constant')
 
+A = randomDigits(500)
+B = randomDigits(500)
 
+print("First Number {}".format(A))
+print("Second Number {}".format(B))
 
-# A = randomDigits(5)
-# B = randomDigits(5)
-
-# A = randomDigits(50)
-# B = randomDigits(50)
-
-# A = randomDigits(500)
-# B = randomDigits(500)
-
-# A = randomDigits(5000)
-# B = randomDigits(5000)
-
-A = randomDigits(50000)
-B = randomDigits(50000)
-
-print(A)
-print(B)
-
-A = Num2Arr(A)
+A = Num2Arr(A)                                      # Converts these numbers to individual elements in an array  
 B = Num2Arr(B)
 
-#start timer
+M, L, N, OL = Info(A, B)                            # Extracts pertinent info from A,B for decision making on rearrangement/efficient calculation
 
-M, L, N, OL = Info(A, B)
+ASplit = Split(A, L)                                # Split A into tractable sub-arrays of power of two length
 
-ASplit = Split(A, L)
-
-OAList = np.empty((len(ASplit), N))
-for i in range(len(ASplit)):
-    OAList[i] = Padding(ASplit[i], N)
+OAList = np.empty((len(ASplit), N))                 # Empty array the length of A, each sub-array N long
+for i in range(len(ASplit)):                        # Enters array of N padding zeros into each entry of A that isn't filled; ensures parity in length with B? 
+    OAList[i] = Padding(ASplit[i], N) 
 
 
 
-h = Padding(B, N)
+h = Padding(B, N)                                   # Pads B to power of two length defined by N
 
 
 FOAList = []
 for i in OAList:
-    #FFT component
-    FOAList.append(ifft(fft(i) * fft(h)))
-FOAList = np.array(FOAList)
+    FOAList.append(ifft(fft(i) * fft(h)))           # Multiply FT of a sub-array from A and FT of padded B array 
+FOAList = np.array(FOAList)                         # Classic convolution theorem; Schonhage-Strassen. Multiplying each FTd sub-array with the FT of B and then taking the inversion (bit-shifting)
 FOAList = np.reshape(FOAList, (len(OAList), N))
 FOAList = np.round(np.real(FOAList))
+
 k = round(len(OAList))
 height = k
 width = (((k - 1) * L) + N)
@@ -160,8 +137,6 @@ for i in range(dA):
 
 FinalSum = np.zeros((dA, Len))
 
-# for i in range(dA):
-#     FinalSum[dA-i-1, (dA-i+1)-(len(digitArray[i])) : dA-i+1] = digitArray[i]
 
 for i in range(dA):
     FinalSum[dA-i-1, (Len-1-i)-(len(digitArray[i]))+1 : Len-i] = digitArray[i]
@@ -180,10 +155,6 @@ for i in range(np.shape(FinalSum)[1]):
                                    
 Result = np.flipud(Result)
 Result = ''.join(str(i) for i in Result)
-#end timer
-print(Result)
-
-
-
+print("Result {}".format(Result))
 
 
