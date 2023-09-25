@@ -1,5 +1,5 @@
 # LargeNumberMultiplicationFFT
-An extensive research paper on the algorithm, implementation and use is prodivded in 'main'
+An extensive research paper on the algorithm, implementation and use is prodivded in "Large_Number_Multiplication_using_Fast_Fourier_Transforms.pdf" in 'main'
 
 ## Introduction
 This code is designed to perform large number multiplication using the Fast Fourier Transform (FFT) algorithm. The algorithm is particularly efficient for multiplying large numbers and is based on the Cooley-Tukey algorithm for FFT. The code is written in Python and utilises NumPy for numerical operations.
