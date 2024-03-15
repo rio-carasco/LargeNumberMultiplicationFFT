@@ -112,26 +112,13 @@ def Split(Arr, L):
 def Padding(Arr, N):                                         
     return np.pad(Arr, (0, N-len(Arr)), 'constant')          
 
+############################################################################################################################################
 
-
-# A = randomDigits(5)
-# B = randomDigits(5)
-
-# A = randomDigits(50)
-# B = randomDigits(50)
-
-# A = randomDigits(500)
-# B = randomDigits(500)
-
-# A = randomDigits(5000)
-# B = randomDigits(5000)
-
+#A and B are our two 'Large' numbers. Use randomDigits() to produce a random number with a specified number of digits
 A = randomDigits(5000)          
 B = randomDigits(5000)
 
-#print(A)
-#print(B)
-
+#Convert to Array
 A = Num2Arr(A)                 
 B = Num2Arr(B)
 
