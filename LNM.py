@@ -51,14 +51,28 @@ def randomDigits(n):
     range_end = (10**n)-1
     return randint(range_start, range_end)
 
-def Pwr2(Number):                             
+def Pwr2(Number):
+    """
+    Check if a number is a power of 2.
+    Parameters(Number): The number to be checked.
+    Returns: True if the number is a power of 2, False otherwise.
+    """
     if np.log2(Number).is_integer():
         return True
     else:
         return False
 
 
-def Info(A, B):                               
+def Info(A, B):
+    """
+    Defines variables representing infomation about original numbers
+    Parameters(A, B): The two initial numbers
+    Returns: 
+        - M: Length of array B
+        - L: Size used for padding array A before convolution
+        - N: Size of the output array after convolution
+        - OL: Length of the output array after convolution
+    """
     M = len(B)
     L = 1
     while not Pwr2(L+M-1):                     
@@ -67,21 +81,41 @@ def Info(A, B):
     N = L + M - 1
     return M, L, N, OL
 
-def Num2Arr(Number):                           
-    a = []
+def Num2Arr(Number): 
+    """
+    Converts a Number in string format to an array in which each digit is an element
+    Parameters(Number): Any int
+    Returns(NumArr): Array
+    """
+    NumArr = []
     for i in str(Number):
-        a.append(int(i))
-    a = np.array(a)
-    return a
+        NumArr.append(int(i))
+    NumArr = np.array(NumArr)
+    return NumArr
     
 
-def Split(Arr, L):                               
+def Split(Arr, L): 
+    """
+    Divides an array into segments of a specified length (L), ensuring that each segment is complete and contains no more than L elements.
+    If the length of the input array is not evenly divisible by L, the function ensures that any remaining elements are included in the 
+    last segment.
+    Parameters(Arr, L): (Array(Initial number), max length of arrays
+    Returns(FinalArr)
+    """
+    #If the desired segment length (L) is 1, the function simply splits the input array into individual elements and returns them as 
+    #separate arrays.
     if L == 1:                                    
         return np.array_split(Arr, len(Arr))
+    #segment length is greater than 1 
     else:
-        R = len(Arr)%L                          
-        NoR = len(Arr) - R                      
-        NewArr = Arr[:NoR]                      
+        #The function calculates the remainder (R) when the length of the input array is divided by L
+        R = len(Arr)%L 
+        #Determines the length of the input array without considering the remainder (NoR)
+        NoR = len(Arr) - R 
+        #Creates a new array (NewArr) containing only the elements of the input array up to the nearest multiple of L
+        NewArr = Arr[:NoR] 
+        #If the length of NewArr is equal to L, indicating that it is a complete segment, the function checks if there is a remainder (R). 
+        #If there is a remainder, it creates an additional array (RArr) containing the remaining elements.
         if len(NewArr) == L:                    
             FinalArr = np.empty(2, object)          
             FinalArr[0] = NewArr                    
@@ -90,7 +124,9 @@ def Split(Arr, L):
             else:
                 RArr = np.array(Arr[-R:])           
                 FinalArr[1] = RArr
-            return FinalArr                         
+            return FinalArr   
+        #If NewArr is longer than L, indicating that it contains multiple complete segments, 
+        #the function splits NewArr into segments of length L using np.array_split
         NewArrSplit = np.array_split(NewArr, len(NewArr)/L)
         if R == 0:
             pass
@@ -100,6 +136,7 @@ def Split(Arr, L):
             R_Value = 0                                                  
         else:
             R_Value = 1
+        #If there is a remainder (R), it appends the remaining elements to the last segment
         FinalArr = np.empty(len(NewArrSplit) + R_Value, object)
         for i in range(len(NewArrSplit)):
             FinalArr[i] = NewArrSplit[i]
@@ -107,9 +144,15 @@ def Split(Arr, L):
             pass
         else:
             FinalArr[-1] = RArr
+        #the function returns an array containing the split segments, with any remaining elements placed in the last segment
         return FinalArr
 
-def Padding(Arr, N):                                         
+def Padding(Arr, N):
+    """
+    Adds a padding of zeros to the arrays to allow the arrays to fit a desired length N.
+    Parameters(Arr, N): (Array, Desired length of Array)
+    Returns: Array with padding
+    """
     return np.pad(Arr, (0, N-len(Arr)), 'constant')          
 
 ############################################################################################################################################
