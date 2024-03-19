@@ -165,10 +165,13 @@ B = randomDigits(5000)
 A = Num2Arr(A)                 
 B = Num2Arr(B)
 
+#Calculate (Info) variables
 M, L, N, OL = Info(A, B)       
 
+#Split Arrays
 ASplit = Split(A, L)           
 
+#Add Padding
 OAList = np.empty((len(ASplit), N)) 
 for i in range(len(ASplit)):        
     OAList[i] = Padding(ASplit[i], N) 
@@ -178,6 +181,7 @@ for i in range(len(ASplit)):
 h = Padding(B, N)    
 h_complex = h.astype(complex)
 
+#Create Final list 
 FOAList = []
 for i in OAList:
     i_complex = i.astype(complex)
